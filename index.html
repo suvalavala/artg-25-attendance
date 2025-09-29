@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARTG 25 Student Directory</title>
+  <style>
+    :root {
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    body {
+      margin: 0;
+      padding: 0 1.5rem 3rem;
+      max-width: 880px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.55;
+      background-color: #f8fafc;
+    }
+
+    header {
+      padding: 2.5rem 0 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    section {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid transparent;
+      background: #1d4ed8;
+      color: #ffffff;
+      padding: 0.6rem 1.15rem;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    button:hover {
+      border-color: #1e3a8a;
+      box-shadow: 0 6px 14px rgba(29, 78, 216, 0.18);
+    }
+
+    button:focus {
+      outline: 3px solid rgba(29, 78, 216, 0.35);
+      outline-offset: 2px;
+    }
+
+    .list-wrapper {
+      margin-top: 1.25rem;
+    }
+
+    .list-wrapper[hidden] {
+      display: none;
+    }
+
+    .table-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    .count-pill {
+      background: #e0e7ff;
+      color: #1d4ed8;
+      padding: 0.2rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.95rem;
+    }
+
+    thead {
+      background: #f1f5f9;
+      color: #1f2937;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-size: 0.75rem;
+    }
+
+    th, td {
+      padding: 0.7rem 0.95rem;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #f8fafc;
+    }
+
+    tbody tr:hover {
+      background: #eef2ff;
+    }
+
+    a.email-link {
+      color: #1d4ed8;
+      text-decoration: none;
+    }
+
+    a.email-link:hover {
+      text-decoration: underline;
+    }
+
+    .upload-group {
+      display: grid;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    .upload-note {
+      font-size: 0.85rem;
+      color: #475569;
+    }
+
+    .upload-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.45rem;
+    }
+
+    .upload-summary .summary-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #f1f5f9;
+      border-radius: 9999px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      color: #1f2937;
+      border: 1px solid #e2e8f0;
+    }
+
+    .upload-summary .summary-item strong {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .file-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.4rem 0.8rem;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      color: #1f2937;
+    }
+
+    .comparison-results {
+      margin-top: 1.75rem;
+    }
+
+    .tab-buttons {
+      display: inline-flex;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+    }
+
+    .tab-button {
+      background: #e0e7ff;
+      color: #1d4ed8;
+      border: 1px solid transparent;
+      box-shadow: none;
+    }
+
+    .tab-button:hover {
+      border-color: #c7d2fe;
+      box-shadow: none;
+    }
+
+    .tab-button.tab-active {
+      background: #1d4ed8;
+      color: #ffffff;
+      border-color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ARTG 25 Student Directory</h1>
+  </header>
+
+  <section>
+    <h2>Roster Viewer</h2>
+    <button id="toggleButton" type="button">Show Student List</button>
+
+    <div id="listWrapper" class="list-wrapper" hidden>
+      <div class="table-meta">
+        <span>Current students on file</span>
+        <span id="studentCount" class="count-pill"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Upload a CSV</h2>
+    <div class="upload-group">
+      <label for="studentCsv">
+        <strong>Choose roster file:</strong>
+      </label>
+      <input id="studentCsv" type="file" accept=".csv" />
+      <p id="fileFeedback" class="upload-note">No file selected yet.</p>
+    </div>
+
+    <div id="comparisonResults" class="comparison-results" hidden>
+      <div class="tab-buttons" role="tablist">
+        <button id="showAbsenteesButton" type="button" class="tab-button tab-active" aria-controls="missingWrapper">View Absentees</button>
+        <button id="showPresenteesButton" type="button" class="tab-button" aria-controls="presentWrapper">View Presentees</button>
+      </div>
+
+      <div id="missingWrapper" class="list-wrapper" hidden>
+        <div class="table-meta">
+          <span>Students not in uploaded file</span>
+          <span id="missingCount" class="count-pill"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+            </tr>
+          </thead>
+          <tbody id="missingTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="presentWrapper" class="list-wrapper" hidden>
+        <div class="table-meta">
+          <span>Students found in uploaded file</span>
+          <span id="presentCount" class="count-pill"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+            </tr>
+          </thead>
+          <tbody id="presentTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Update the hard-coded roster by adding objects like { name: 'Full Name', email: 'netid@ucsc.edu' }.
+    const students = [
+      { name: 'Zita A Allen', email: 'ziallen@ucsc.edu' },
+      { name: 'Boden Adema', email: 'badema@ucsc.edu' },
+      { name: 'Benjamin Alanis', email: 'bdalanis@ucsc.edu' },
+      { name: 'Josh Alvarado', email: 'jalva117@ucsc.edu' },
+      { name: 'Sammi Alvarado', email: 'saclalva@ucsc.edu' },
+      { name: 'Lorenzo Amaral', email: 'loamaral@ucsc.edu' },
+      { name: 'Beatrice Anagnostakis', email: 'banagnos@ucsc.edu' },
+      { name: 'Prathi Ananthakrishnan', email: 'pananth2@ucsc.edu' },
+      { name: 'Jared Anderson', email: 'jagander@ucsc.edu' },
+      { name: 'Finley Appleton', email: 'cappleto@ucsc.edu' },
+      { name: 'Emma Arbil', email: 'earbil@ucsc.edu' },
+      { name: 'Hiro Arcangel', email: 'harcange@ucsc.edu' },
+      { name: 'Dally Arquilla', email: 'dtarquil@ucsc.edu' },
+      { name: 'Jacquelyn Barrios', email: 'jaalbarr@ucsc.edu' },
+      { name: 'Luke Berger', email: 'lmberger@ucsc.edu' },
+      { name: 'Mica Bicaldo', email: 'mbicaldo@ucsc.edu' },
+      { name: 'Kenedi Bikovsky', email: 'kbikovsk@ucsc.edu' },
+      { name: 'Stephanie Bojorquez', email: 'stbojorq@ucsc.edu' },
+      { name: 'Connor Brill', email: 'cnbrill@ucsc.edu' },
+      { name: 'Gianna Buscho', email: 'gbuscho@ucsc.edu' },
+      { name: 'Brianna Bustamante', email: 'brmabust@ucsc.edu' },
+      { name: 'Joaquin Andre Cabales', email: 'jcabales@ucsc.edu' },
+      { name: 'Taino Caballero', email: 'tacaball@ucsc.edu' },
+      { name: 'Isabelle Cardenas', email: 'isscarde@ucsc.edu' },
+      { name: 'Chris Carilli', email: 'ccarilli@ucsc.edu' },
+      { name: 'Kat Carreno', email: 'adecarre@ucsc.edu' },
+      { name: 'Canh Che', email: 'ccche@ucsc.edu' },
+      { name: 'Johnny Chung', email: 'jchung65@ucsc.edu' },
+      { name: 'Reese Cole', email: 'reecole@ucsc.edu' },
+      { name: 'Leslie Nicole Comillas', email: 'lcomilla@ucsc.edu' },
+      { name: 'Carrie Crabajales', email: 'ccrabaja@ucsc.edu' },
+      { name: 'Quinn Cro', email: 'qcro@ucsc.edu' },
+      { name: 'Jif Dillemuth', email: 'jdillemu@ucsc.edu' },
+      { name: 'Kai Dreicer', email: 'kdreicer@ucsc.edu' },
+      { name: 'Nemiko Egami', email: 'negami@ucsc.edu' },
+      { name: 'Frances Ellis', email: 'fjellis@ucsc.edu' },
+      { name: 'Toby Farrell', email: 'tmfarrel@ucsc.edu' },
+      { name: 'Kaylee Fischer', email: 'kgfische@ucsc.edu' },
+      { name: 'Theo Flores-Torbert', email: 'tflorest@ucsc.edu' },
+      { name: 'Zhengjie Gao', email: 'zgao80@ucsc.edu' },
+      { name: 'Luis Garcia', email: 'lusegarc@ucsc.edu' },
+      { name: 'Haoxuan Ge', email: 'hge8@ucsc.edu' },
+      { name: 'Naomi Gibbs-Zehnder (they/them)', email: 'ngibbsze@ucsc.edu' },
+      { name: 'Gabriel Giron', email: 'gegiron@ucsc.edu' },
+      { name: 'Luis Gonzalez', email: 'lgonz140@ucsc.edu' },
+      { name: 'Giovanna Gutierrez-Garcia', email: 'ggutie33@ucsc.edu' },
+      { name: 'Michelle Ha', email: 'mimha@ucsc.edu' },
+      { name: 'Xiaowen He', email: 'xhe107@ucsc.edu' },
+      { name: 'Eric Hernandez', email: 'ehern199@ucsc.edu' },
+      { name: 'Ashley Herrera Davalos', email: 'asguherr@ucsc.edu' },
+      { name: 'Emily Hu', email: 'emlhu@ucsc.edu' },
+      { name: 'Alex Huang', email: 'alzihuan@ucsc.edu' },
+      { name: 'Deviana Hyde', email: 'dkhyde@ucsc.edu' },
+      { name: 'Isaiah Jamerson', email: 'ijamerso@ucsc.edu' },
+      { name: 'Briana Jauregui Landeros', email: 'brjaureg@ucsc.edu' },
+      { name: 'Pierre Johnson', email: 'pgjohnso@ucsc.edu' },
+      { name: 'Lakshmi Khanna', email: 'lkhanna@ucsc.edu' },
+      { name: 'Serena Killingsworth', email: 'srkillin@ucsc.edu' },
+      { name: 'Elijah Kim', email: 'ekim158@ucsc.edu' },
+      { name: 'Sydney Kim', email: 'syjkim@ucsc.edu' },
+      { name: 'Jenna King', email: 'jebking@ucsc.edu' },
+      { name: 'Kenneth Knott', email: 'kdknott@ucsc.edu' },
+      { name: 'Avery Kydd', email: 'akydd@ucsc.edu' },
+      { name: 'Kailani Lendahl', email: 'klendahl@ucsc.edu' },
+      { name: 'Hyunseo Lim', email: 'hlim30@ucsc.edu' },
+      { name: 'Keenan Lofft', email: 'klofft@ucsc.edu' },
+      { name: 'Natalie Lopez-Schneider', email: 'nlopezsc@ucsc.edu' },
+      { name: 'Lupita Lopez', email: 'luvlopez@ucsc.edu' },
+      { name: 'Ruby Lopez', email: 'rueslope@ucsc.edu' },
+      { name: 'Vanessa Lu', email: 'vlu12@ucsc.edu' },
+      { name: 'Grace Magno', email: 'gmagno@ucsc.edu' },
+      { name: 'Katarina Malenovic', email: 'kmalenov@ucsc.edu' },
+      { name: 'Genesis Marquez Ascencion', email: 'ggmarque@ucsc.edu' },
+      { name: 'Leyla Martinez', email: 'lmart111@ucsc.edu' },
+      { name: 'Dylan Mccloskey', email: 'dkmcclos@ucsc.edu' },
+      { name: 'Josue Mena', email: 'joamena@ucsc.edu' },
+      { name: 'Vincent Metallo', email: 'vmetallo@ucsc.edu' },
+      { name: 'Cade Milgate', email: 'cmilgate@ucsc.edu' },
+      { name: 'Adam Mohamed', email: 'adamoham@ucsc.edu' },
+      { name: 'Madeline Moore', email: 'mahemoor@ucsc.edu' },
+      { name: 'Mauricio Moreno-Jones', email: 'mmorenoj@ucsc.edu' },
+      { name: 'Ryan Mustfa', email: 'rmustfa@ucsc.edu' },
+      { name: 'Evan Nevarez', email: 'evdnevar@ucsc.edu' },
+      { name: 'Eden Newton (they/them)', email: 'avnnewto@ucsc.edu' },
+      { name: 'Riley Nguyen', email: 'rnguye30@ucsc.edu' },
+      { name: 'Stella Nguyen', email: 'snguy117@ucsc.edu' },
+      { name: 'Christoph Olejniczak', email: 'colejnic@ucsc.edu' },
+      { name: 'Giselle Orosco-Cortez', email: 'loroscoc@ucsc.edu' },
+      { name: 'Jose Parra', email: 'jomaparr@ucsc.edu' },
+      { name: 'Deija Parsons', email: 'dtparson@ucsc.edu' },
+      { name: 'Annukka Payne-Rinne', email: 'apayneri@ucsc.edu' },
+      { name: 'Christopher Perez-Barrera', email: 'cperezba@ucsc.edu' },
+      { name: 'Andrea Perrotta', email: 'aiperrot@ucsc.edu' },
+      { name: 'Dinh Pham', email: 'dpham28@ucsc.edu' },
+      { name: 'Ryan Phillips', email: 'rylphill@ucsc.edu' },
+      { name: 'Paige Pidgeon', email: 'ppidgeon@ucsc.edu' },
+      { name: 'Natalia Ponce', email: 'namponce@ucsc.edu' },
+      { name: 'Giuliette Prieto', email: 'giprieto@ucsc.edu' },
+      { name: 'Gavin Raasch', email: 'graasch@ucsc.edu' },
+      { name: 'Michelle Reyes Mendoza', email: 'mreyesme@ucsc.edu' },
+      { name: 'Faith Robertson', email: 'ferobert@ucsc.edu' },
+      { name: 'Axel Rojas', email: 'axrsanch@ucsc.edu' },
+      { name: 'Alejandro Romero', email: 'abazarom@ucsc.edu' },
+      { name: 'Jocelyn Ruezga-Espinoza', email: 'jruezgae@ucsc.edu' },
+      { name: 'Sebastian Ruiz', email: 'selruiz@ucsc.edu' },
+      { name: 'Elodie Schott', email: 'eschott1@ucsc.edu' },
+      { name: 'Gabriel Schwartz', email: 'gtschwar@ucsc.edu' },
+      { name: 'Zoe Sellner', email: 'zsellner@ucsc.edu' },
+      { name: 'Shazia Shameerullah', email: 'sshameer@ucsc.edu' },
+      { name: 'Xiyao Shi', email: 'xshi48@ucsc.edu' },
+      { name: 'Rachel Simpliciano', email: 'rsimplic@ucsc.edu' },
+      { name: 'Jake Slye', email: 'jslye@ucsc.edu' },
+      { name: 'Bardia Soltani', email: 'basoltan@ucsc.edu' },
+      { name: 'Olivia Song', email: 'xsong37@ucsc.edu' },
+      { name: 'Cj Stamp', email: 'cjstamp@ucsc.edu' },
+      { name: 'Wan Lee Tan', email: 'watan@ucsc.edu' },
+      { name: 'Angelique Vega', email: 'avega26@ucsc.edu' },
+      { name: 'Ashley Villing', email: 'avilling@ucsc.edu' },
+      { name: 'Ashwin Vinod', email: 'asvinod@ucsc.edu' },
+      { name: 'Gerardo Viveros Prado', email: 'gevivero@ucsc.edu' },
+      { name: 'Jaisan Waltower', email: 'jwaltowe@ucsc.edu' },
+      { name: 'Kevin You Wang', email: 'kwang211@ucsc.edu' },
+      { name: 'Annika Wickham', email: 'arwickha@ucsc.edu' },
+      { name: 'Robert Wohlford', email: 'rwohlfor@ucsc.edu' },
+      { name: 'Kelly Wong', email: 'kwong128@ucsc.edu' },
+      { name: 'Lincoln Woodward', email: 'lpwoodwa@ucsc.edu' },
+      { name: 'Wushuang Yuen', email: 'eyuen3@ucsc.edu' },
+      { name: 'Noah Zhu', email: 'nozhu@ucsc.edu' },
+      { name: 'Surya', email: 'suvalava@ucsc.edu' },
+    ];
+
+    const toggleButton = document.getElementById('toggleButton');
+    const listWrapper = document.getElementById('listWrapper');
+    const tableBody = document.getElementById('studentTableBody');
+    const studentCount = document.getElementById('studentCount');
+
+    function renderStudents() {
+      tableBody.innerHTML = '';
+      students.forEach((student) => {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.textContent = student.name;
+        const emailCell = document.createElement('td');
+        const emailLink = document.createElement('a');
+        emailLink.href = `mailto:${student.email}`;
+        emailLink.className = 'email-link';
+        emailLink.textContent = student.email;
+        emailCell.appendChild(emailLink);
+        row.appendChild(nameCell);
+        row.appendChild(emailCell);
+        tableBody.appendChild(row);
+      });
+      studentCount.textContent = `${students.length} students`;
+    }
+
+    renderStudents();
+
+    toggleButton.addEventListener('click', () => {
+      const isHidden = listWrapper.hasAttribute('hidden');
+      if (isHidden) {
+        listWrapper.removeAttribute('hidden');
+        toggleButton.textContent = 'Hide Student List';
+      } else {
+        listWrapper.setAttribute('hidden', '');
+        toggleButton.textContent = 'Show Student List';
+      }
+    });
+
+    const fileInput = document.getElementById('studentCsv');
+    const fileFeedback = document.getElementById('fileFeedback');
+    const comparisonResults = document.getElementById('comparisonResults');
+    const showAbsenteesButton = document.getElementById('showAbsenteesButton');
+    const showPresenteesButton = document.getElementById('showPresenteesButton');
+    const presentWrapper = document.getElementById('presentWrapper');
+    const presentTableBody = document.getElementById('presentTableBody');
+    const presentCount = document.getElementById('presentCount');
+    const missingWrapper = document.getElementById('missingWrapper');
+    const missingTableBody = document.getElementById('missingTableBody');
+    const missingCount = document.getElementById('missingCount');
+
+    function parseCsv(text) {
+      const rows = [];
+      let current = '';
+      let row = [];
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        if (char === '"') {
+          if (inQuotes && text[i + 1] === '"') {
+            current += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(current);
+          current = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (char === '\r' && text[i + 1] === '\n') {
+            i += 1;
+          }
+          row.push(current);
+          rows.push(row);
+          row = [];
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      row.push(current);
+      rows.push(row);
+      return rows.filter((cells) => cells.some((cell) => cell.trim() !== ''));
+    }
+
+    function emailColumnIndex(headerRow) {
+      return headerRow.findIndex((value) => {
+        const normalized = value.trim().toLowerCase();
+        return normalized.includes('email') || normalized.includes('username');
+      });
+    }
+
+    function extractEmails(rows) {
+      if (!rows.length) {
+        return new Set();
+      }
+      const [header, ...rest] = rows;
+      const index = emailColumnIndex(header);
+      if (index === -1) {
+        throw new Error('Could not find an email column in the uploaded file.');
+      }
+      const emails = new Set();
+      rest.forEach((cells) => {
+        const value = (cells[index] || '').trim();
+        if (value) {
+          emails.add(value.toLowerCase());
+        }
+      });
+      return emails;
+    }
+
+    function renderPresentStudents(present) {
+      presentTableBody.innerHTML = '';
+      if (!present.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 2;
+        cell.textContent = 'No matching students found in the uploaded file.';
+        row.appendChild(cell);
+        presentTableBody.appendChild(row);
+      } else {
+        present.forEach((student) => {
+          const row = document.createElement('tr');
+          const nameCell = document.createElement('td');
+          nameCell.textContent = student.name;
+          const emailCell = document.createElement('td');
+          const emailLink = document.createElement('a');
+          emailLink.href = `mailto:${student.email}`;
+          emailLink.className = 'email-link';
+          emailLink.textContent = student.email;
+          emailCell.appendChild(emailLink);
+          row.appendChild(nameCell);
+          row.appendChild(emailCell);
+          presentTableBody.appendChild(row);
+        });
+      }
+      presentCount.textContent = `${present.length} present`;
+    }
+
+    function renderMissingStudents(missing) {
+      missingTableBody.innerHTML = '';
+      if (!missing.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 2;
+        cell.textContent = 'All students appear in the uploaded file.';
+        row.appendChild(cell);
+        missingTableBody.appendChild(row);
+      } else {
+        missing.forEach((student) => {
+          const row = document.createElement('tr');
+          const nameCell = document.createElement('td');
+          nameCell.textContent = student.name;
+          const emailCell = document.createElement('td');
+          const emailLink = document.createElement('a');
+          emailLink.href = `mailto:${student.email}`;
+          emailLink.className = 'email-link';
+          emailLink.textContent = student.email;
+          emailCell.appendChild(emailLink);
+          row.appendChild(nameCell);
+          row.appendChild(emailCell);
+          missingTableBody.appendChild(row);
+        });
+      }
+      missingCount.textContent = `${missing.length} missing`;
+    }
+
+    function setActiveResultTab(tab) {
+      if (tab === 'presentees') {
+        presentWrapper.removeAttribute('hidden');
+        missingWrapper.setAttribute('hidden', '');
+        showPresenteesButton.classList.add('tab-active');
+        showAbsenteesButton.classList.remove('tab-active');
+      } else {
+        missingWrapper.removeAttribute('hidden');
+        presentWrapper.setAttribute('hidden', '');
+        showAbsenteesButton.classList.add('tab-active');
+        showPresenteesButton.classList.remove('tab-active');
+      }
+    }
+
+    function hideComparisonResults() {
+      comparisonResults.setAttribute('hidden', '');
+      presentWrapper.setAttribute('hidden', '');
+      presentTableBody.innerHTML = '';
+      presentCount.textContent = '';
+      missingWrapper.setAttribute('hidden', '');
+      missingTableBody.innerHTML = '';
+      missingCount.textContent = '';
+      showAbsenteesButton.classList.remove('tab-active');
+      showPresenteesButton.classList.remove('tab-active');
+    }
+
+    showAbsenteesButton.addEventListener('click', () => {
+      if (comparisonResults.hasAttribute('hidden')) {
+        return;
+      }
+      setActiveResultTab('absentees');
+    });
+
+    showPresenteesButton.addEventListener('click', () => {
+      if (comparisonResults.hasAttribute('hidden')) {
+        return;
+      }
+      setActiveResultTab('presentees');
+    });
+
+    fileInput.addEventListener('change', () => {
+      const [file] = fileInput.files;
+      if (!file) {
+        fileFeedback.textContent = 'No file selected yet.';
+        hideComparisonResults();
+        return;
+      }
+
+      fileFeedback.innerHTML = `Reading <span class="file-pill">${file.name}</span>...`;
+      hideComparisonResults();
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const text = String(reader.result);
+          const rows = parseCsv(text);
+          const uploadedEmails = extractEmails(rows);
+          if (!uploadedEmails.size) {
+            fileFeedback.textContent = 'No emails found in the uploaded file.';
+            hideComparisonResults();
+            return;
+          }
+
+          const present = students.filter(
+            (student) => uploadedEmails.has(student.email.toLowerCase()),
+          );
+          const missing = students.filter(
+            (student) => !uploadedEmails.has(student.email.toLowerCase()),
+          );
+
+          renderPresentStudents(present);
+          renderMissingStudents(missing);
+          comparisonResults.removeAttribute('hidden');
+          setActiveResultTab('absentees');
+          const totalStudents = students.length;
+          fileFeedback.innerHTML = `Matched <span class="file-pill">${file.name}</span>
+            <div class="upload-summary">
+              <span class="summary-item"><strong>Total Students</strong>${totalStudents}</span>
+              <span class="summary-item"><strong>Presentees</strong>${present.length}</span>
+              <span class="summary-item"><strong>Absentees</strong>${missing.length}</span>
+            </div>`;
+        } catch (error) {
+          fileFeedback.textContent = error.message;
+          hideComparisonResults();
+        }
+      };
+
+      reader.onerror = () => {
+        fileFeedback.textContent = 'Unable to read the selected file.';
+        hideComparisonResults();
+      };
+
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
